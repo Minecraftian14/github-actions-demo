@@ -1,32 +1,94 @@
-# React + TypeScript + Vite
+# GitHub Actions Demo
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+This is a demonstration of GitHub Actions. The goal is to showcase common CI/CD patterns, automation triggers, and workflow configuration.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The project includes four GitHub Actions workflows under [.github/workflows](.github/workflows):
 
-## React Compiler
+- A minimal "hello world" example
+- Continuous integration checks
+- Deployment to GitHub Pages
+- A Node version matrix test run
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+These examples are useful for learning how GitHub Actions can automate validation, deployment, and ad hoc scripting tasks.
 
-## Expanding the Oxlint configuration
+## Workflows
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### 1) Echo Hello World
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+File: [.github/workflows/echo.yml](.github/workflows/echo.yml)
+
+This is a very small demonstration workflow that runs on every push and prints:
+
+- a greeting: "Hello from GitHub Actions!"
+- the current Git commit SHA via `${{ github.sha }}`
+
+This is a useful example for understanding the basics of workflow execution, job steps, and GitHub context expressions.
+
+### 2) Continuous Integration
+
+File: [.github/workflows/ci.yml](.github/workflows/ci.yml)
+
+This workflow runs on every push and validates the project with a simple CI pipeline.
+
+Steps:
+
+- Checks out the repository
+- Installs Node.js 22
+- Runs `npm ci` to install dependencies exactly as locked in `package-lock.json`
+- Runs `npm test` to execute the test suite
+- Runs `npm run build` to verify the app still compiles successfully
+
+This is the classic "validate before merge" pattern for a Node application.
+
+### 3) Node Version Matrix
+
+File: [.github/workflows/matrix.yml](.github/workflows/matrix.yml)
+
+This workflow demonstrates a matrix strategy, which runs the same job across multiple versions of Node.js.
+
+Configuration:
+
+- Node versions: 20 and 22
+- Runs on Ubuntu
+- Executes:
+  - `npm ci`
+  - `npm test -- --run`
+
+This is a common pattern for validating compatibility across supported runtime versions.
+
+### 4) Build and Deploy
+
+File: [.github/workflows/deploy.yml](.github/workflows/deploy.yml)
+
+This workflow is designed for deployment to GitHub Pages.
+
+Trigger conditions:
+
+- Pushes to the `main` branch
+- Manual execution via `workflow_dispatch`
+
+It performs the following:
+
+- Checks out the repository
+- Sets up Node.js 22 with npm caching
+- Installs dependencies with `npm ci`
+- Runs tests in non-watch mode: `npm test -- --run`
+- Builds the production bundle: `npm run build`
+- Uses GitHub Pages actions to publish the built output from `./dist`
+
+The workflow includes permissions for Pages deployment and uses a concurrency group to avoid overlapping deployments.
+
+
+---
+
+
+## Local Development Commands
+
+```bash
+npm install
+npm run dev
+npm test
+npm run build
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
