@@ -1,0 +1,21 @@
+name: Continuous Integration
+
+on:
+  push:
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Clean Install
+        run: npm ci
+      - name: Run Tests
+        run: npm test
+      - name: Run Build
+        run: npm run build
